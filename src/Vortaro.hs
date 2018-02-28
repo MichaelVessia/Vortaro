@@ -15,7 +15,7 @@ translate word espdic = do
 
 -- Return lines in the espdic for which the given EnWord can be found
 searchForWord :: EnWord -> EspDic -> [String]
-searchForWord word espdic = filter (isInfixOf word) (tail . lines . (map toLower) $ espdic)
+searchForWord word espdic = filter (isInfixOf word) (tail . lines . makeLowerCase $ espdic)
 
 makeLowerCase :: String -> String
 makeLowerCase = map toLower

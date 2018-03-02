@@ -19,7 +19,7 @@ translate :: EnWord -> String -> IO ()
 translate word rawDic =
     if translations == [] then putStrLn "No translation found"
     else do
-        putStrLn ("\n\nThe English Word " ++ word ++ " has " ++ (show. length $ translations) ++ " possible definitions:")
+        putStrLn ("\n\nThe English Word " ++ word ++ " has " ++ (show . length $ translations) ++ " possible definitions:")
         mapM_ (putStrLn . getOutputString) translations
             where translations = mkEntries (searchForWord (makeLowerCase word) (formatAllLines . getLines $ rawDic))
 
@@ -37,6 +37,7 @@ format = makeLowerCase . stripQuotes
 formatAllLines :: [String] -> [String]
 formatAllLines = map format
 
+-- Get all lines in the Esperanto dictionary, skipping the first because it's the header
 getLines :: String -> [String]
 getLines = tail . lines
 
@@ -51,6 +52,8 @@ mkEntry line = (Entry (EoWord left) (Definition right))
 mkEntries :: [String] -> [Entry]
 mkEntries = map mkEntry
 
+-- Split a string on the given delimeter.
+-- TODO: Find a package function for this, or optimize it.
 split :: String -> Char -> [String]
 split [] delim = [""]
 split (x:xs) delim

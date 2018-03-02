@@ -2,12 +2,17 @@ module Vortaro where
 
 import Data.List (isInfixOf)
 import Data.Char (toLower)
-import qualified Data.Text as T
 
 -- An English word
 type EnWord = String
 -- The Esperanto dictionary file
 type EspDic = String
+
+data EoWord = EoWord String
+
+data Definition = Definition String
+
+data Entry = Entry EoWord Definition
 
 translate :: EnWord -> EspDic -> IO ()
 translate word espdic = do
@@ -26,3 +31,14 @@ makeLowerCase = map toLower
 
 stripQuotes :: String -> String
 stripQuotes = filter (/='"')
+
+mkEntry :: String -> Entry
+mkEntry line = undefined
+
+split :: String -> Char -> [String]
+split [] delim = [""]
+split (x:xs) delim
+    | x == delim = "" : rest
+    | otherwise = (x : head rest) : tail rest
+    where rest = split xs delim
+

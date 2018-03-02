@@ -32,8 +32,16 @@ makeLowerCase = map toLower
 stripQuotes :: String -> String
 stripQuotes = filter (/='"')
 
+-- Dictionary entries are split by a :
+-- Construct an Entry for a given line
 mkEntry :: String -> Entry
-mkEntry line = undefined
+mkEntry line = (Entry (EoWord left) (Definition right))
+    where left = parts !! 0
+          right = parts !! 1
+          parts = split line ':'
+
+mkEntries :: [String] -> [Entry]
+mkEntries = map mkEntry
 
 split :: String -> Char -> [String]
 split [] delim = [""]

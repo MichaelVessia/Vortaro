@@ -16,23 +16,26 @@ data Definition = Definition String deriving (Show, Eq)
 data Entry = Entry EoWord Definition deriving (Show, Eq)
 
 translate :: EnWord -> String -> IO ()
-translate word rawDic = do
-    if translations == Nothing then putStrLn "No translation found" else mapM_ (putStrLn . show) translations
-        where translations = searchForWord (makeLowerCase word) (mkEntries (format rawDic))
+translate word rawDic =
+    if translations == [] then putStrLn "No translation found" else mapM_ (putStrLn . show) translations
+        where translations = mkEntries (searchForWord (makeLowerCase word) (formatAllLines . getLines $ rawDic))
 
 -- Return lines in the espdic for which the given EnWord can be found
-searchForWord :: EnWord -> [Entry] -> Maybe [Entry]
-searchForWord word espdic
-    | results == [] = Nothing
-    | otherwise = Just results
-        where results = filter (definitionContainsWord word) espdic
+searchForWord :: EnWord -> [String] -> [String]
+searchForWord word espdic = filter (isInfixOf word) espdic
 
 definitionContainsWord :: EnWord -> Entry -> Bool
 definitionContainsWord word (Entry _ (Definition def)) = isInfixOf word def
 
 -- Format the EspDic input String prior to its transformation into the real type
-format :: String -> [String]
-format = tail . lines . makeLowerCase . stripQuotes
+format :: String -> String
+format = makeLowerCase . stripQuotes
+
+formatAllLines :: [String] -> [String]
+formatAllLines = map format
+
+getLines :: String -> [String]
+getLines = tail . lines
 
 -- Dictionary entries are split by a :
 -- Construct an Entry for a given line

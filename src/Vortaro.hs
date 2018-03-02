@@ -17,8 +17,11 @@ data Entry = Entry EoWord Definition deriving (Show, Eq)
 
 translate :: EnWord -> String -> IO ()
 translate word rawDic =
-    if translations == [] then putStrLn "No translation found" else mapM_ (putStrLn . show) translations
-        where translations = mkEntries (searchForWord (makeLowerCase word) (formatAllLines . getLines $ rawDic))
+    if translations == [] then putStrLn "No translation found"
+    else do
+        putStrLn ("\n\nThe English Word " ++ word ++ " has " ++ (show. length $ translations) ++ " possible definitions:")
+        mapM_ (putStrLn . getOutputString) translations
+            where translations = mkEntries (searchForWord (makeLowerCase word) (formatAllLines . getLines $ rawDic))
 
 -- Return lines in the espdic for which the given EnWord can be found
 searchForWord :: EnWord -> [String] -> [String]
@@ -60,3 +63,6 @@ makeLowerCase = map toLower
 
 stripQuotes :: String -> String
 stripQuotes = filter (/='"')
+
+getOutputString :: Entry -> String
+getOutputString (Entry (EoWord word) (Definition def)) = format word ++ " => " ++ format def

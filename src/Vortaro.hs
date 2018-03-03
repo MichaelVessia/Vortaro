@@ -25,7 +25,7 @@ translate :: EnWord -> Text -> IO ()
 translate word rawDic =
     if translations == [] then TIO.putStrLn "No translation found"
     else do
-        TIO.putStrLn ("\n\nThe English Word " <> word <> " has " <> (T.pack $  show . length $ translations) <> " possible definitions:")
+        TIO.putStrLn ("\n\nThe word " <> word <> " has " <> (T.pack $  show . length $ translations) <> " possible definitions:")
         mapM_ (TIO.putStrLn . getOutputText) translations
             where translations = mkEntries (searchForWord (T.toLower word) (formatAllLines . getLines $ rawDic))
 

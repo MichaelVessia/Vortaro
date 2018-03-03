@@ -7,6 +7,7 @@ import Data.Char (toLower)
 import Data.Text (Text, split, pack)
 import Data.Text.IO as TIO
 import qualified Data.Text as T
+import Data.Monoid
 
 -- An English word
 type EnWord = Text
@@ -24,7 +25,7 @@ translate :: EnWord -> Text -> IO ()
 translate word rawDic =
     if translations == [] then TIO.putStrLn "No translation found"
     else do
-        TIO.putStrLn ("\n\nThe English Word " `T.append` word `T.append` " has " `T.append` (T.pack $  show . length $ translations) `T.append` " possible definitions:")
+        TIO.putStrLn ("\n\nThe English Word " <> word <> " has " <> (T.pack $  show . length $ translations) <> " possible definitions:")
         mapM_ (TIO.putStrLn . getOutputText) translations
             where translations = mkEntries (searchForWord (T.toLower word) (formatAllLines . getLines $ rawDic))
 
@@ -61,4 +62,4 @@ stripQuotes :: Text -> Text
 stripQuotes = T.filter (/='"')
 
 getOutputText :: Entry -> Text
-getOutputText (Entry (EoWord word) (Definition def)) = format word `T.append` " => " `T.append` format def
+getOutputText (Entry (EoWord word) (Definition def)) = format word <> " => " <> format def

@@ -1,12 +1,14 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
 import Vortaro
 import System.IO
+import Data.Text.IO as TIO
 
 main :: IO ()
 main = do
-    putStrLn "Please enter an English word."
-    word <- getLine
+    TIO.putStrLn "Please enter a word"
+    word <- TIO.getLine
     withFile "espdic/espdic.txt" ReadMode $ \fileHandle -> do
-        contents <- hGetContents fileHandle
+        contents <- TIO.hGetContents fileHandle
         translate word contents

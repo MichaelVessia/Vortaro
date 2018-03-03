@@ -1,71 +1,64 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Vortaro where
 
 import Data.List (isInfixOf)
 import Data.Char (toLower)
+import Data.Text (Text, split, pack)
+import Data.Text.IO as TIO
+import qualified Data.Text as T
 
 -- An English word
-type EnWord = String
+type EnWord = Text
 
 -- An Esperanto word, found on the LHS of a dictionary entry
-data EoWord = EoWord String deriving (Show, Eq)
+data EoWord = EoWord Text deriving (Show, Eq)
 
 -- A definition of an Esperanto word, found on the RHS of a dictionary entry
-data Definition = Definition String deriving (Show, Eq)
+data Definition = Definition Text deriving (Show, Eq)
 
 -- Product type representing a single line in the dictionary
 data Entry = Entry EoWord Definition deriving (Show, Eq)
 
-translate :: EnWord -> String -> IO ()
+translate :: EnWord -> Text -> IO ()
 translate word rawDic =
-    if translations == [] then putStrLn "No translation found"
+    if translations == [] then TIO.putStrLn "No translation found"
     else do
-        putStrLn ("\n\nThe English Word " ++ word ++ " has " ++ (show . length $ translations) ++ " possible definitions:")
-        mapM_ (putStrLn . getOutputString) translations
-            where translations = mkEntries (searchForWord (makeLowerCase word) (formatAllLines . getLines $ rawDic))
+        TIO.putStrLn ("\n\nThe English Word " `T.append` word `T.append` " has " `T.append` (T.pack $  show . length $ translations) `T.append` " possible definitions:")
+        mapM_ (TIO.putStrLn . getOutputText) translations
+            where translations = mkEntries (searchForWord (T.toLower word) (formatAllLines . getLines $ rawDic))
 
 -- Return lines in the espdic for which the given EnWord can be found
-searchForWord :: EnWord -> [String] -> [String]
-searchForWord word espdic = filter (isInfixOf word) espdic
+searchForWord :: EnWord -> [Text] -> [Text]
+searchForWord word espdic = filter (T.isInfixOf word) espdic
 
 definitionContainsWord :: EnWord -> Entry -> Bool
-definitionContainsWord word (Entry _ (Definition def)) = isInfixOf word def
+definitionContainsWord word (Entry _ (Definition def)) = T.isInfixOf word def
 
--- Format the EspDic input String prior to its transformation into the real type
-format :: String -> String
-format = makeLowerCase . stripQuotes
+-- Format the EspDic input Text prior to its transformation into the real type
+format :: Text -> Text
+format = T.toLower . stripQuotes
 
-formatAllLines :: [String] -> [String]
+formatAllLines :: [Text] -> [Text]
 formatAllLines = map format
 
 -- Get all lines in the Esperanto dictionary, skipping the first because it's the header
-getLines :: String -> [String]
-getLines = tail . lines
+getLines :: Text -> [Text]
+getLines = drop 1 . T.lines
 
 -- Dictionary entries are split by a :
 -- Construct an Entry for a given line
-mkEntry :: String -> Entry
+mkEntry :: Text -> Entry
 mkEntry line = (Entry (EoWord left) (Definition right))
     where left = parts !! 0
           right = parts !! 1
-          parts = split line ':'
+          parts = split (==':') line
 
-mkEntries :: [String] -> [Entry]
+mkEntries :: [Text] -> [Entry]
 mkEntries = map mkEntry
 
--- Split a string on the given delimeter.
--- TODO: Find a package function for this, or optimize it.
-split :: String -> Char -> [String]
-split [] delim = [""]
-split (x:xs) delim
-    | x == delim = "" : rest
-    | otherwise = (x : head rest) : tail rest
-    where rest = split xs delim
+stripQuotes :: Text -> Text
+stripQuotes = T.filter (/='"')
 
-makeLowerCase :: String -> String
-makeLowerCase = map toLower
-
-stripQuotes :: String -> String
-stripQuotes = filter (/='"')
-
-getOutputString :: Entry -> String
-getOutputString (Entry (EoWord word) (Definition def)) = format word ++ " => " ++ format def
+getOutputText :: Entry -> Text
+getOutputText (Entry (EoWord word) (Definition def)) = format word `T.append` " => " `T.append` format def

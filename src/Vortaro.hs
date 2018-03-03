@@ -23,7 +23,7 @@ data Entry = Entry EoWord Definition deriving (Show, Eq)
 
 translate :: EnWord -> Text -> IO ()
 translate word rawDic =
-    if translations == [] then TIO.putStrLn "No translation found"
+    if word == "" || translations == [] then TIO.putStrLn "No translation found"
     else do
         TIO.putStrLn ("\n\nThe word " <> word <> " has " <> (T.pack $  show . length $ translations) <> " possible definitions:")
         mapM_ (TIO.putStrLn . getOutputText) translations

@@ -5,10 +5,22 @@ import Vortaro
 import System.IO
 import Data.Text.IO as TIO
 
-main :: IO ()
-main = do
+doTranslate :: IO ()
+doTranslate = do
+    TIO.putStrLn "\n\n"
     TIO.putStrLn "Please enter a word"
     word <- TIO.getLine
     withFile "espdic/espdic.txt" ReadMode $ \fileHandle -> do
         contents <- TIO.hGetContents fileHandle
         translate word contents
+        main
+
+main :: IO ()
+main = do
+  TIO.putStrLn "\n\n"
+  TIO.putStrLn "What would you like to do?"
+  TIO.putStrLn "1 Translate a word"
+  TIO.putStrLn "2 Quit"
+  action <- TIO.getLine
+  if action == "1" then doTranslate else return ()
+

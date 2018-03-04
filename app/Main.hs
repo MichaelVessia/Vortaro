@@ -3,6 +3,7 @@ module Main where
 
 import Vortaro
 import System.IO
+import Data.Text
 import Data.Text.IO as TIO
 
 doTranslate :: IO ()
@@ -22,5 +23,8 @@ main = do
   TIO.putStrLn "1 Translate a word"
   TIO.putStrLn "2 Quit"
   action <- TIO.getLine
-  if action == "1" then doTranslate else return ()
+  case action of
+    "1" -> doTranslate
+    "2" -> return ()
+    otherwise -> main
 

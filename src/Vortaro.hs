@@ -9,9 +9,6 @@ import Data.Text.IO as TIO
 import qualified Data.Text as T
 import Data.Monoid
 
--- An English word
-type EnWord = Text
-
 -- An Esperanto word, found on the LHS of a dictionary entry
 data EoWord = EoWord Text deriving (Show, Eq)
 
@@ -30,7 +27,7 @@ xMap = [("cx", "ĉ"), ("cX", "ĉ"), ("Cx", "Ĉ"), ("CX", "Ĉ"),
         ("sx", "ŝ"), ("sX", "ŝ"), ("Sx", "Ŝ"), ("SX", "Ŝ"),
         ("ux", "ŭ"), ("uX", "ŭ"), ("Ux", "Ŭ"), ("UX", "Ŭ")]
 
-translate :: EnWord -> Text -> IO ()
+translate :: Text -> Text -> IO ()
 translate word rawDic =
     if word == "" || translations == [] then TIO.putStrLn "No translation found"
     else do
@@ -38,11 +35,12 @@ translate word rawDic =
         mapM_ (TIO.putStrLn . getOutputText) translations
             where translations = mkEntries (searchForWord (T.toLower word) (formatAllLines . getLines $ rawDic))
 
--- Return lines in the espdic for which the given EnWord can be found
-searchForWord :: EnWord -> [Text] -> [Text]
-searchForWord word espdic = filter (T.isInfixOf word) espdic
+-- Return lines in the espdic for which the given Text (English or Esperanto Word) can be found
+searchForWord :: Text -> [Text] -> [Text]
+searchForWord w espdic = filter (T.isInfixOf word) espdic
+  where word = if hasX w then getText (xReplace (EoWord w)) else w
 
-definitionContainsWord :: EnWord -> Entry -> Bool
+definitionContainsWord :: Text -> Entry -> Bool
 definitionContainsWord word (Entry _ (Definition def)) = T.isInfixOf word def
 
 -- Format the EspDic input Text prior to its transformation into the real type
@@ -79,3 +77,8 @@ xReplaceHelper (EoWord word) (x, d) = (EoWord (T.replace x d word))
 xReplace :: EoWord -> EoWord
 xReplace word = foldl xReplaceHelper word xMap
 
+hasX :: Text -> Bool
+hasX word = T.isInfixOf "x" word || T.isInfixOf "X" word
+
+getText :: EoWord -> Text
+getText (EoWord word) = word

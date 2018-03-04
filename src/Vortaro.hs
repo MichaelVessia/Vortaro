@@ -4,7 +4,7 @@ module Vortaro where
 
 import Data.List (isInfixOf)
 import Data.Char (toLower)
-import Data.Text (Text, split, pack)
+import Data.Text (Text, split, pack, replace)
 import Data.Text.IO as TIO
 import qualified Data.Text as T
 import Data.Monoid
@@ -20,6 +20,15 @@ data Definition = Definition Text deriving (Show, Eq)
 
 -- Product type representing a single line in the dictionary
 data Entry = Entry EoWord Definition deriving (Show, Eq)
+
+-- The mapping of x-system words to diacritic words that we'll need to parse user input
+xMap :: [(Text, Text)]
+xMap = [("cx", "ĉ"), ("cX", "ĉ"), ("Cx", "Ĉ"), ("CX", "Ĉ"),
+        ("gx", "ĝ"), ("gX", "ĝ"), ("Gx", "Ĝ"), ("GX", "Ĝ"),
+        ("hx", "ĥ"), ("hX", "ĥ"), ("Hx", "Ĥ"), ("HX", "Ĥ"),
+        ("jx", "ĵ"), ("jX", "ĵ"), ("Jx", "Ĵ"), ("JX", "Ĵ"),
+        ("sx", "ŝ"), ("sX", "ŝ"), ("Sx", "Ŝ"), ("SX", "Ŝ"),
+        ("ux", "ŭ"), ("uX", "ŭ"), ("Ux", "Ŭ"), ("UX", "Ŭ")]
 
 translate :: EnWord -> Text -> IO ()
 translate word rawDic =
@@ -63,3 +72,10 @@ stripQuotes = T.filter (/='"')
 
 getOutputText :: Entry -> Text
 getOutputText (Entry (EoWord word) (Definition def)) = format word <> " => " <> format def
+
+xReplaceHelper :: EoWord -> (Text, Text) -> EoWord
+xReplaceHelper (EoWord word) (x, d) = (EoWord (T.replace x d word))
+
+xReplace :: EoWord -> EoWord
+xReplace word = foldl xReplaceHelper word xMap
+

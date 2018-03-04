@@ -18,15 +18,6 @@ data Definition = Definition Text deriving (Show, Eq)
 -- Product type representing a single line in the dictionary
 data Entry = Entry EoWord Definition deriving (Show, Eq)
 
--- The mapping of x-system words to diacritic words that we'll need to parse user input
-xMap :: [(Text, Text)]
-xMap = [("cx", "ĉ"), ("cX", "ĉ"), ("Cx", "Ĉ"), ("CX", "Ĉ"),
-        ("gx", "ĝ"), ("gX", "ĝ"), ("Gx", "Ĝ"), ("GX", "Ĝ"),
-        ("hx", "ĥ"), ("hX", "ĥ"), ("Hx", "Ĥ"), ("HX", "Ĥ"),
-        ("jx", "ĵ"), ("jX", "ĵ"), ("Jx", "Ĵ"), ("JX", "Ĵ"),
-        ("sx", "ŝ"), ("sX", "ŝ"), ("Sx", "Ŝ"), ("SX", "Ŝ"),
-        ("ux", "ŭ"), ("uX", "ŭ"), ("Ux", "Ŭ"), ("UX", "Ŭ")]
-
 translate :: Text -> Text -> IO ()
 translate word rawDic =
     if word == "" || translations == [] then TIO.putStrLn "No translation found"
@@ -76,6 +67,12 @@ xReplaceHelper (EoWord word) (x, d) = (EoWord (T.replace x d word))
 
 xReplace :: EoWord -> EoWord
 xReplace word = foldl xReplaceHelper word xMap
+  where xMap = [("cx", "ĉ"), ("cX", "ĉ"), ("Cx", "Ĉ"), ("CX", "Ĉ"),
+                ("gx", "ĝ"), ("gX", "ĝ"), ("Gx", "Ĝ"), ("GX", "Ĝ"),
+                ("hx", "ĥ"), ("hX", "ĥ"), ("Hx", "Ĥ"), ("HX", "Ĥ"),
+                ("jx", "ĵ"), ("jX", "ĵ"), ("Jx", "Ĵ"), ("JX", "Ĵ"),
+                ("sx", "ŝ"), ("sX", "ŝ"), ("Sx", "Ŝ"), ("SX", "Ŝ"),
+                ("ux", "ŭ"), ("uX", "ŭ"), ("Ux", "Ŭ"), ("UX", "Ŭ")]
 
 hasX :: Text -> Bool
 hasX word = T.isInfixOf "x" word || T.isInfixOf "X" word

@@ -1,5 +1,7 @@
-# Vortaro
+![Vortaro](vortaro.png)
 
-I don't have time to learn both Esperanto and Haskell, so I decided to combine them.
+An Esperanto dictionary for English speakers. Vortaro comes from vorto (word) + -ar- (collection)
 
-If you actually want to use a good Esperanto dictionary, I suggest you check out [tuja-vortaro](http://www.tujavortaro.net) which inspired me to make this.
+
+
+Inspired by [tuja-vortaro](http://www.tujavortaro.net)
